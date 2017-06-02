@@ -6,6 +6,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,10 +32,13 @@ public class GuideActivity extends AppCompatActivity {
     ImageView ivRedPoint;
     @InjectView(R.id.activity_guide)
     RelativeLayout activityGuide;
-    private ArrayList<ImageView>imageViews;
+    private ArrayList<ImageView> imageViews;
 
-    private int[]ids = {R.drawable.guide_1,R.drawable.guide_2,R.drawable.guide_3};
-
+    private int[] ids = {R.drawable.guide_1, R.drawable.guide_2, R.drawable.guide_3};
+    /**
+     * 两点的间距
+     */
+    private int leftMargin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +48,60 @@ public class GuideActivity extends AppCompatActivity {
         //初始化数据
         initData();
         vp.setAdapter(new MyPagerAdapter());
+        //设置监听ViewPager滑动位置的变化
+        vp.addOnPageChangeListener(new MyOnPageChangeListener());
+        //计算两个点之间的距离
+        ivRedPoint.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                //取消监听
+                ivRedPoint.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                leftMargin = llPointGroup.getChildAt(1).getLeft() - llPointGroup.getChildAt(0).getLeft();
+            }
+        });
     }
-    class MyPagerAdapter extends PagerAdapter{
+
+    class MyOnPageChangeListener implements ViewPager.OnPageChangeListener {
+        /**
+         * 当滑到的时候回调
+         *
+         * @param position
+         * @param positionOffset
+         * @param positionOffsetPixels
+         */
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//            红点移动距离：间距 = 手滑动的距离：屏幕宽 = 屏幕滑动的百分比
+//            红点移动距离 = 间距 * 屏幕滑动的百分比
+            float left = leftMargin * (position + positionOffset);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) ivRedPoint.getLayoutParams();
+            params.leftMargin = (int) left;
+            ivRedPoint.setLayoutParams(params);
+        }
+
+        /**
+         * 当选中某个页面的时候回调
+         *
+         * @param position
+         */
+        @Override
+        public void onPageSelected(int position) {
+            if (position == imageViews.size() - 1) {
+                //最后一个页面就显示
+                btnStartMain.setVisibility(View.VISIBLE);
+            } else {
+                //其他的都隐藏
+                btnStartMain.setVisibility(View.GONE);
+            }
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+    }
+
+    class MyPagerAdapter extends PagerAdapter {
 
         @Override
         public int getCount() {
@@ -72,12 +128,23 @@ public class GuideActivity extends AppCompatActivity {
 
     private void initData() {
         imageViews = new ArrayList<>();
-        for (int i = 0;i<ids.length;i++){
+        for (int i = 0; i < ids.length; i++) {
             ImageView imageView = new ImageView(this);
             //设置背景
             imageView.setBackgroundResource(ids[i]);
             //添加到集合中去
             imageViews.add(imageView);
+
+            //添加三个灰色的点
+            ImageView point = new ImageView(this);
+            point.setImageResource(R.drawable.guide_point_noemal);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(10, 10);
+            point.setLayoutParams(params);
+            if (i != 0) {
+                params.leftMargin = 10;
+            }
+            //添加到线性布局中区
+            llPointGroup.addView(point);
         }
     }
 
