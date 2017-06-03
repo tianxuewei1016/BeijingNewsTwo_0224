@@ -84,9 +84,9 @@ public class ContentFragment extends BaseFragment {
             @Override
             public void onPageSelected(int position) {
                 pagers.get(position).initData();
-                if(position == 1) {
+                if (position == 1) {
                     isEnableSlidingMenu(context, SlidingMenu.TOUCHMODE_FULLSCREEN);
-                }else{
+                } else {
                     isEnableSlidingMenu((MainActivity) context, SlidingMenu.TOUCHMODE_NONE);
                 }
             }
@@ -105,6 +105,15 @@ public class ContentFragment extends BaseFragment {
     private static void isEnableSlidingMenu(Context context, int touchmodeFullscreen) {
         MainActivity mainActivity = (MainActivity) context;
         mainActivity.getSlidingMenu().setTouchModeAbove(touchmodeFullscreen);
+    }
+
+    /**
+     * 得到新闻中心
+     *
+     * @return
+     */
+    public NewsPager getNewsPager() {
+        return (NewsPager) pagers.get(1);
     }
 
     class MyAdapter extends PagerAdapter {

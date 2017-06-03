@@ -4,10 +4,17 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.TextView;
 
 import com.atguigu.beijingnewstwo_0224.activity.MainActivity;
 import com.atguigu.beijingnewstwo_0224.base.BasePager;
+import com.atguigu.beijingnewstwo_0224.base.MenuDetailBasePager;
+import com.atguigu.beijingnewstwo_0224.detailpager.InteractMenuDetailPager;
+import com.atguigu.beijingnewstwo_0224.detailpager.NewsMenuDetailPager;
+import com.atguigu.beijingnewstwo_0224.detailpager.PhotosMenuDetailPager;
+import com.atguigu.beijingnewstwo_0224.detailpager.TopicMenuDetailPager;
+import com.atguigu.beijingnewstwo_0224.detailpager.VoteMenuDetailPager;
 import com.atguigu.beijingnewstwo_0224.domain.NewsCenterBean;
 import com.atguigu.beijingnewstwo_0224.fragment.LeftMenuFragment;
 import com.atguigu.beijingnewstwo_0224.utils.Constants;
@@ -15,6 +22,7 @@ import com.google.gson.Gson;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Call;
@@ -26,7 +34,14 @@ import okhttp3.Call;
  */
 
 public class NewsPager extends BasePager {
+    /**
+     * 左侧页面的数据集合
+     */
     private List<NewsCenterBean.DataBean> datas;
+    /**
+     * 左侧菜单详情的页面集合
+     */
+    private List<MenuDetailBasePager> basePagers;
 
     public NewsPager(Context context) {
         super(context);
@@ -39,6 +54,7 @@ public class NewsPager extends BasePager {
 
         //设置标题
         tv_title.setText("新闻");
+        ib_menu.setVisibility(View.VISIBLE);
 
         //创建子类的视图
         TextView textView = new TextView(context);
@@ -80,8 +96,31 @@ public class NewsPager extends BasePager {
         datas = newsCenterBean.getData();
         //传到左侧菜单
         MainActivity mainActivity = (MainActivity) context;
+
+        basePagers = new ArrayList<>();
+        basePagers.add(new NewsMenuDetailPager(context));//新闻详情页面
+        basePagers.add(new TopicMenuDetailPager(context));//专题详情页面
+        basePagers.add(new PhotosMenuDetailPager(context));//组图详情页面
+        basePagers.add(new InteractMenuDetailPager(context));//互动详情页面
+        basePagers.add(new VoteMenuDetailPager(context));//投票详情页面
+
         //得到左侧菜单Fragment
         LeftMenuFragment leftMenuFragment = mainActivity.getLeftMenuFragment();
         leftMenuFragment.setData(datas);
+    }
+
+    /**
+     * 根据位置切换到不同的详情页面
+     *
+     * @param prePosition
+     */
+    public void swichPager(int prePosition) {
+        MenuDetailBasePager basePager = basePagers.get(prePosition);
+        View rootView = basePager.rootView;
+        fl_content.removeAllViews();//把之前显示的给移除
+
+        fl_content.addView(rootView);
+        //调用InitData
+        basePager.initData();
     }
 }

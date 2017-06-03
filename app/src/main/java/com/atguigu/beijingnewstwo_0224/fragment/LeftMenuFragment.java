@@ -11,6 +11,7 @@ import com.atguigu.beijingnewstwo_0224.R;
 import com.atguigu.beijingnewstwo_0224.activity.MainActivity;
 import com.atguigu.beijingnewstwo_0224.base.BaseFragment;
 import com.atguigu.beijingnewstwo_0224.domain.NewsCenterBean;
+import com.atguigu.beijingnewstwo_0224.pager.NewsPager;
 
 import java.util.List;
 
@@ -32,19 +33,31 @@ public class LeftMenuFragment extends BaseFragment {
     @Override
     protected View initView() {
         listView = new ListView(context);
-        listView.setPadding(0,40,0,0);
+        listView.setPadding(0, 40, 0, 0);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 prePosition = position;
                 adapter.notifyDataSetChanged();
-
+                //1.得到MainActivity
                 MainActivity mainActivity = (MainActivity) context;
                 mainActivity.getSlidingMenu().toggle();//关<->开
+
+                switchPager(prePosition);
             }
         });
         return listView;
+    }
+
+    private void switchPager(int position) {
+        MainActivity mainActivity = (MainActivity) context;
+        //2.得到ContentFragment
+        ContentFragment contentFragment = mainActivity.getContentFragment();
+        //3.得到NewsPager
+        NewsPager newsPager = contentFragment.getNewsPager();
+        //4.调用切换方法
+        newsPager.swichPager(position);
     }
 
     @Override
@@ -57,13 +70,14 @@ public class LeftMenuFragment extends BaseFragment {
         adapter = new LeftMenuAdapter();
         listView.setAdapter(adapter);
 
+        switchPager(prePosition);
     }
 
-    class LeftMenuAdapter extends BaseAdapter{
+    class LeftMenuAdapter extends BaseAdapter {
 
         @Override
         public int getCount() {
-            return datas == null ? 0:datas.size();
+            return datas == null ? 0 : datas.size();
         }
 
         @Override
@@ -78,12 +92,12 @@ public class LeftMenuFragment extends BaseFragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            TextView textView = (TextView) View.inflate(context, R.layout.item_leftmenu,null);
+            TextView textView = (TextView) View.inflate(context, R.layout.item_leftmenu, null);
 
-            if(prePosition == position) {
+            if (prePosition == position) {
                 //高亮
                 textView.setEnabled(true);
-            }else{
+            } else {
                 //默认
                 textView.setEnabled(false);
             }
