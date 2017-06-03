@@ -2,10 +2,18 @@ package com.atguigu.beijingnewstwo_0224.pager;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.TextView;
 
 import com.atguigu.beijingnewstwo_0224.base.BasePager;
+import com.atguigu.beijingnewstwo_0224.domain.NewsCenterBean;
+import com.atguigu.beijingnewstwo_0224.utils.Constants;
+import com.google.gson.Gson;
+import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.StringCallback;
+
+import okhttp3.Call;
 
 /**
  * 作者：田学伟 on 2017/6/2 17:58
@@ -34,5 +42,35 @@ public class NewsPager extends BasePager {
 
         //添加到布局上
         fl_content.addView(textView);
+
+        //联网请求
+        getDataForNet();
+    }
+
+    private void getDataForNet() {
+        OkHttpUtils
+                .get()
+                .url(Constants.NEWSCENTER_PAGER_URL)
+//                .addParams("username", "hyman")
+//                .addParams("password", "123")
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+//                        Log.e("TAG", "联网失败" + e.getMessage());
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+//                        Log.e("TAG", "联网成功" + response);
+                        processData(response);
+                    }
+                });
+    }
+
+    private void processData(String json) {
+        NewsCenterBean newsCenterBean = new Gson().fromJson(json, NewsCenterBean.class);
+        Log.e("TAG", "解析成功==" + newsCenterBean.getData().get(0).getChildren().get(0).getTitle());
+
     }
 }
