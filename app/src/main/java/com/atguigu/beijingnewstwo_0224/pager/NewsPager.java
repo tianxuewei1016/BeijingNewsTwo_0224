@@ -2,6 +2,7 @@ package com.atguigu.beijingnewstwo_0224.pager;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.atguigu.beijingnewstwo_0224.detailpager.TopicMenuDetailPager;
 import com.atguigu.beijingnewstwo_0224.detailpager.VoteMenuDetailPager;
 import com.atguigu.beijingnewstwo_0224.domain.NewsCenterBean;
 import com.atguigu.beijingnewstwo_0224.fragment.LeftMenuFragment;
+import com.atguigu.beijingnewstwo_0224.utils.CacheUtils;
 import com.atguigu.beijingnewstwo_0224.utils.Constants;
 import com.google.gson.Gson;
 import com.zhy.http.okhttp.OkHttpUtils;
@@ -64,7 +66,11 @@ public class NewsPager extends BasePager {
 
         //添加到布局上
         fl_content.addView(textView);
-
+        //获取数据
+        String saveJson = CacheUtils.getString(context, Constants.NEWSCENTER_PAGER_URL);
+        if (!TextUtils.isEmpty(saveJson)) {
+            processData(saveJson);
+        }
         //联网请求
         getDataForNet();
     }
@@ -85,6 +91,7 @@ public class NewsPager extends BasePager {
                     @Override
                     public void onResponse(String response, int id) {
 //                        Log.e("TAG", "联网成功" + response);
+                        CacheUtils.putString(context, Constants.NEWSCENTER_PAGER_URL, response);
                         processData(response);
                     }
                 });
