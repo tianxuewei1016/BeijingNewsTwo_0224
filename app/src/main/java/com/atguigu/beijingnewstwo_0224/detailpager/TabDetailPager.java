@@ -1,11 +1,13 @@
 package com.atguigu.beijingnewstwo_0224.detailpager;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -17,6 +19,7 @@ import com.atguigu.beijingnewstwo_0224.R;
 import com.atguigu.beijingnewstwo_0224.base.MenuDetailBasePager;
 import com.atguigu.beijingnewstwo_0224.domain.NewsCenterBean;
 import com.atguigu.beijingnewstwo_0224.domain.TabDetailPagerBean;
+import com.atguigu.beijingnewstwo_0224.utils.CacheUtils;
 import com.atguigu.beijingnewstwo_0224.utils.Constants;
 import com.atguigu.beijingnewstwo_0224.view.HorizontalScrollViewPager;
 import com.bumptech.glide.Glide;
@@ -42,7 +45,7 @@ import okhttp3.Call;
 
 public class TabDetailPager extends MenuDetailBasePager {
     private final NewsCenterBean.DataBean.ChildrenBean childrenBean;
-
+    public static final String READ_ID_ARRAY = "read_id_array";
     HorizontalScrollViewPager viewpager;
     TextView tvTitle;
     LinearLayout llPointGroup;
@@ -71,6 +74,8 @@ public class TabDetailPager extends MenuDetailBasePager {
         ButterKnife.inject(this, view);
 
         //得到ListView
+        lv = pullRefreshList.getRefreshableView();
+
         /**
          * 增加下拉刷新的声音
          */
@@ -127,6 +132,23 @@ public class TabDetailPager extends MenuDetailBasePager {
                     getDataFromNet(moreUrl);
                 } else {
                     Toast.makeText(context, "没有更多数据了...", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                int realPosition = position - 2;
+                TabDetailPagerBean.DataEntity.NewsEntity newsEntity = newsBeanList.get(realPosition);
+//                Log.e("TAG", "" + newsBean.getId() + "--------" + newsBean.getTitle());
+                //获取
+                String idArray = CacheUtils.getString(context, READ_ID_ARRAY);
+                //判断是否存在
+                if (!idArray.contains(newsEntity.getId() + "")) {
+                    idArray = idArray + newsEntity.getId() + ",";
+                    CacheUtils.putString(context, READ_ID_ARRAY, idArray);
+                    //刷新适配器
+                    adapter.notifyDataSetChanged();
                 }
             }
         });
@@ -245,6 +267,16 @@ public class TabDetailPager extends MenuDetailBasePager {
                     .error(R.drawable.news_pic_default)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(viewHolder.ivIcon);
+
+            //判断是否已经被点击了
+            String idArray = CacheUtils.getString(context, READ_ID_ARRAY);
+            if (idArray.contains(newsEntity.getId() + "")) {
+                //灰色
+                viewHolder.tvDesc.setTextColor(Color.GRAY);
+            } else {
+                //黑色
+                viewHolder.tvDesc.setTextColor(Color.BLACK);
+            }
             return convertView;
         }
     }
