@@ -1,5 +1,7 @@
 package com.atguigu.beijingnewstwo_0224.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -36,6 +38,9 @@ public class NewsDetailActivity extends AppCompatActivity {
     ProgressBar progressbar;
     private Uri url;
     private WebSettings settings;
+
+    private int tempSize = 2;
+    private int realSize = tempSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,10 +87,49 @@ public class NewsDetailActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.ib_textsize:
-                Toast.makeText(NewsDetailActivity.this, "设置文字大小", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(NewsDetailActivity.this, "设置文字大小", Toast.LENGTH_SHORT).show();
+                showChangeTextSizeDialog();
                 break;
             case R.id.ib_share:
                 Toast.makeText(NewsDetailActivity.this, "分享", Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
+
+    private void showChangeTextSizeDialog() {
+        String[] items = {"超大字体", "大字体", "正常字体", "小字体", "超小字体"};
+        new AlertDialog.Builder(this)
+                .setTitle("设置文字大小")
+                .setSingleChoiceItems(items, realSize, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        tempSize = which;
+                    }
+                }).setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                realSize = tempSize;
+                changeTextSize(realSize);
+            }
+        }).setNegativeButton("取消", null).show();
+    }
+
+    private void changeTextSize(int realSize) {
+        switch (realSize) {
+            case 0:
+                settings.setTextZoom(200);
+                break;
+            case 1:
+                settings.setTextZoom(150);
+                break;
+            case 2:
+                settings.setTextZoom(100);
+                break;
+            case 3:
+                settings.setTextZoom(75);
+                break;
+            case 4:
+                settings.setTextZoom(50);
                 break;
         }
     }
