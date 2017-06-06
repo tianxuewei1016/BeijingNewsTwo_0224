@@ -1,7 +1,9 @@
 package com.atguigu.beijingnewstwo_0224.detailpager;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.atguigu.beijingnewstwo_0224.R;
+import com.atguigu.beijingnewstwo_0224.activity.NewsDetailActivity;
 import com.atguigu.beijingnewstwo_0224.base.MenuDetailBasePager;
 import com.atguigu.beijingnewstwo_0224.domain.NewsCenterBean;
 import com.atguigu.beijingnewstwo_0224.domain.TabDetailPagerBean;
@@ -36,6 +39,8 @@ import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import okhttp3.Call;
+
+import static com.atguigu.beijingnewstwo_0224.utils.Constants.BASE_URL;
 
 /**
  * 作者：田学伟 on 2017/6/5 11:04
@@ -150,6 +155,11 @@ public class TabDetailPager extends MenuDetailBasePager {
                     //刷新适配器
                     adapter.notifyDataSetChanged();
                 }
+                String url = Constants.BASE_URL + newsEntity.getUrl();
+                //跳转到Activity显示新闻详情内容
+                Intent intent = new Intent(context, NewsDetailActivity.class);
+                intent.setData(Uri.parse(url));
+                context.startActivity(intent);
             }
         });
         return view;
@@ -159,7 +169,7 @@ public class TabDetailPager extends MenuDetailBasePager {
     public void initData() {
         super.initData();
         //设置数据
-        url = Constants.BASE_URL + childrenBean.getUrl();
+        url = BASE_URL + childrenBean.getUrl();
         getDataFromNet(url);
     }
 
@@ -192,7 +202,7 @@ public class TabDetailPager extends MenuDetailBasePager {
 
         String more = bean.getData().getMore();
         if (!TextUtils.isEmpty(more)) {
-            moreUrl = Constants.BASE_URL + more;
+            moreUrl = BASE_URL + more;
         }
 
         if (!isLoadingMore) {
@@ -260,7 +270,7 @@ public class TabDetailPager extends MenuDetailBasePager {
             viewHolder.tvDesc.setText(newsEntity.getTitle());
             viewHolder.tvTime.setText(newsEntity.getPubdate());
 
-            String imageUrl = Constants.BASE_URL + newsEntity.getListimage();
+            String imageUrl = BASE_URL + newsEntity.getListimage();
             Glide.with(context)
                     .load(imageUrl)
                     .placeholder(R.drawable.news_pic_default)
@@ -313,7 +323,7 @@ public class TabDetailPager extends MenuDetailBasePager {
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
 
             Glide.with(context)
-                    .load(Constants.BASE_URL + topnews.get(position).getTopimage())
+                    .load(BASE_URL + topnews.get(position).getTopimage())
                     .placeholder(R.drawable.news_pic_default)
                     .error(R.drawable.news_pic_default)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
