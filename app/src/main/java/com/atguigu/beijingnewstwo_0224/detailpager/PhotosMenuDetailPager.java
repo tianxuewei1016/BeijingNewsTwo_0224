@@ -1,9 +1,11 @@
 package com.atguigu.beijingnewstwo_0224.detailpager;
 
 import android.content.Context;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 
 import com.atguigu.beijingnewstwo_0224.R;
@@ -91,13 +93,36 @@ public class PhotosMenuDetailPager extends MenuDetailBasePager {
         datas = bean.getData().getNews();
         if (datas != null && datas.size() > 0) {
             progressbar.setVisibility(View.GONE);
-            adapter = new PhotosMenuDetailPagerAdapater(context,datas);
+            adapter = new PhotosMenuDetailPagerAdapater(context, datas);
             recyclerview.setAdapter(adapter);
             //设置布局管理器
-            recyclerview.setLayoutManager(new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false));
-        }else{
+            recyclerview.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
+        } else {
             //没有数据
             progressbar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * true:显示List效果
+     * false:显示Grid
+     */
+    private boolean isShowList = true;
+
+    /**
+     * 设置List和Grid风格的切换和按钮的设置
+     *
+     * @param iv
+     */
+    public void swichListAndGrid(ImageButton iv) {
+        if (isShowList) {
+            recyclerview.setLayoutManager(new GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false));
+            isShowList = false;
+            iv.setImageResource(R.drawable.icon_pic_list_type);
+        } else {
+            recyclerview.setLayoutManager(new GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false));
+            isShowList = true;
+            iv.setImageResource(R.drawable.icon_pic_grid_type);
         }
     }
 }
