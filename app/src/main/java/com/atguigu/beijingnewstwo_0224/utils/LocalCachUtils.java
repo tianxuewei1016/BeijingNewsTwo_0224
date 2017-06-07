@@ -3,6 +3,7 @@ package com.atguigu.beijingnewstwo_0224.utils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,6 +16,13 @@ import java.io.FileOutputStream;
  */
 
 public class LocalCachUtils {
+
+    private final MemoryCachUtils momenyCachUtils;
+
+    public LocalCachUtils(MemoryCachUtils momenyCachUtils) {
+        this.momenyCachUtils = momenyCachUtils;
+    }
+
     /**
      * 保存图片
      *
@@ -39,11 +47,15 @@ public class LocalCachUtils {
             if (!file.exists()) {
                 file.createNewFile();
             }
-
+            Log.e("TAG", "file==" + file.getAbsolutePath());
             //保存图片
             FileOutputStream fos = new FileOutputStream(file);
             //写入数据
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+
+            if (bitmap != null) {
+                momenyCachUtils.putBitmap2Memory(imageUrl, bitmap);
+            }
 
             //            fos.close();
         } catch (Exception e) {

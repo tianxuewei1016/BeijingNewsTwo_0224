@@ -30,14 +30,15 @@ public class NetCachUtils {
     private final Handler handler;
     private final ExecutorService executorService;
     private final LocalCachUtils localCachUtils;
+    private final MemoryCachUtils momenyCachUtils;
 
 
-    public NetCachUtils(Handler handler,LocalCachUtils localCachUtils) {
+    public NetCachUtils(Handler handler, LocalCachUtils localCachUtils, MemoryCachUtils momenyCachUtils) {
         this.handler = handler;
         this.localCachUtils = localCachUtils;
+        this.momenyCachUtils = momenyCachUtils;
         executorService = Executors.newFixedThreadPool(10);
     }
-
 
 
     public void getBitmapFromNet(String imageUrl, int position) {
@@ -55,6 +56,7 @@ public class NetCachUtils {
             this.imageUrl = imageUrl;
             this.position = position;
         }
+
         @Override
         public void run() {
             //使用原生的方式请求图片
@@ -78,8 +80,9 @@ public class NetCachUtils {
                     handler.sendMessage(msg);
 
                     //在内存中保存一份
+                    momenyCachUtils.putBitmap2Memory(imageUrl, bitmap);
                     //在本地中保存一份
-                    localCachUtils.putBitmap2Local(imageUrl,bitmap);
+                    localCachUtils.putBitmap2Local(imageUrl, bitmap);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
