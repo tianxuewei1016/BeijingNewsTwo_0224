@@ -5,6 +5,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -14,6 +15,7 @@ import com.atguigu.beijingnewstwo_0224.adapter.PhotosMenuDetailPagerAdapater;
 import com.atguigu.beijingnewstwo_0224.base.MenuDetailBasePager;
 import com.atguigu.beijingnewstwo_0224.domain.NewsCenterBean;
 import com.atguigu.beijingnewstwo_0224.domain.PhotosMenuDetailPagerBean;
+import com.atguigu.beijingnewstwo_0224.utils.CacheUtils;
 import com.atguigu.beijingnewstwo_0224.utils.Constants;
 import com.google.gson.Gson;
 import com.zhy.http.okhttp.OkHttpUtils;
@@ -69,6 +71,10 @@ public class PhotosMenuDetailPager extends MenuDetailBasePager {
     public void initData() {
         super.initData();
         url = Constants.BASE_URL + dataBean.getUrl();
+        String saveJson = CacheUtils.getString(context, url);
+        if (!TextUtils.isEmpty(saveJson)) {
+            processData(saveJson);
+        }
         getDataFromNet(url);
     }
 
@@ -77,7 +83,7 @@ public class PhotosMenuDetailPager extends MenuDetailBasePager {
      *
      * @param url
      */
-    private void getDataFromNet(String url) {
+    private void getDataFromNet(final String url) {
         OkHttpUtils.get()
                 .url(url)
                 .build()
@@ -90,6 +96,8 @@ public class PhotosMenuDetailPager extends MenuDetailBasePager {
                     @Override
                     public void onResponse(String response, int id) {
 //                        Log.e("TAG", "图组请求成功==" + response);
+                        //存储
+                        CacheUtils.putString(context, url, response);
                         processData(response);
                     }
                 });
@@ -105,7 +113,7 @@ public class PhotosMenuDetailPager extends MenuDetailBasePager {
         datas = bean.getData().getNews();
         if (datas != null && datas.size() > 0) {
             progressbar.setVisibility(View.GONE);
-            adapter = new PhotosMenuDetailPagerAdapater(context, datas,recyclerview);
+            adapter = new PhotosMenuDetailPagerAdapater(context, datas, recyclerview);
             recyclerview.setAdapter(adapter);
             //设置布局管理器
             recyclerview.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
