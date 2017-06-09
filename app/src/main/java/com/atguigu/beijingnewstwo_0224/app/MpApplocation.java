@@ -3,6 +3,7 @@ package com.atguigu.beijingnewstwo_0224.app;
 import android.app.Application;
 import android.content.Context;
 
+import com.atguigu.beijingnewstwo_0224.CrashHandler;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -35,11 +36,15 @@ public class MpApplocation extends Application {
 
         OkHttpUtils.initClient(okHttpClient);
 
-        JPushInterface.setDebugMode(true); 	// 设置开启日志,发布时请关闭日志
-        JPushInterface.init(this);     		// 初始化 JPush
+        JPushInterface.setDebugMode(true);    // 设置开启日志,发布时请关闭日志
+        JPushInterface.init(this);            // 初始化 JPush
         initImageLoader(this);//初始化ImageLoader
 
         ShareSDK.initSDK(this);
+
+        //监听捕获异常
+        CrashHandler catchHandler = CrashHandler.getInstance();
+        catchHandler.init(getApplicationContext());
     }
 
     public static void initImageLoader(Context context) {
