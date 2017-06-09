@@ -19,6 +19,9 @@ import com.atguigu.beijingnewstwo_0224.domain.PhotosMenuDetailPagerBean;
 import com.atguigu.beijingnewstwo_0224.utils.BitmapCacheUtils;
 import com.atguigu.beijingnewstwo_0224.utils.Constants;
 import com.atguigu.beijingnewstwo_0224.utils.NetCachUtils;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 
 import java.util.List;
 
@@ -36,6 +39,7 @@ public class PhotosMenuDetailPagerAdapater extends RecyclerView.Adapter<PhotosMe
     private final Context context;
     private final List<PhotosMenuDetailPagerBean.DataEntity.NewsEntity> datas;
     private RecyclerView recyclerview;
+    private DisplayImageOptions options;
 
     /**
      * 做图片三级缓存
@@ -69,12 +73,23 @@ public class PhotosMenuDetailPagerAdapater extends RecyclerView.Adapter<PhotosMe
         }
     };
 
-    public PhotosMenuDetailPagerAdapater(Context context, List<PhotosMenuDetailPagerBean.DataEntity.NewsEntity> datas,RecyclerView recyclerview) {
+    public PhotosMenuDetailPagerAdapater(Context context, List<PhotosMenuDetailPagerBean.DataEntity.NewsEntity> datas, RecyclerView recyclerview) {
         this.context = context;
         this.datas = datas;
+        this.recyclerview = recyclerview;
         //把Hanlder传入构造方法
         bitmapCacheUtils = new BitmapCacheUtils(handler);
-        this.recyclerview = recyclerview;
+        options = new DisplayImageOptions.Builder()
+                .showImageOnLoading(R.drawable.news_pic_default)
+                .showImageForEmptyUri(R.drawable.news_pic_default)
+                .showImageOnFail(R.drawable.news_pic_default)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .considerExifParams(true)
+                .bitmapConfig(Bitmap.Config.RGB_565)
+                //设置矩形圆角图片
+                .displayer(new RoundedBitmapDisplayer(10))
+                .build();
     }
 
     @Override
@@ -95,12 +110,14 @@ public class PhotosMenuDetailPagerAdapater extends RecyclerView.Adapter<PhotosMe
 //                .into(holder.ivIcon);
 
         //使用自定义方式请求图片
-        Bitmap bitmap = bitmapCacheUtils.getBitmap(imageUrl, position);
-        //图片对应的Tag就是位置
-        holder.ivIcon.setTag(position);
-        if (bitmap != null) {//来自内存和本地,不包括网络的
-            holder.ivIcon.setImageBitmap(bitmap);
-        }
+//        Bitmap bitmap = bitmapCacheUtils.getBitmap(imageUrl, position);
+//        //图片对应的Tag就是位置
+//        holder.ivIcon.setTag(position);
+//        if (bitmap != null) {//来自内存和本地,不包括网络的
+//            holder.ivIcon.setImageBitmap(bitmap);
+//        }
+
+        ImageLoader.getInstance().displayImage(Constants.BASE_URL+newsEntity.getListimage(), holder.ivIcon, options);
     }
 
     @Override
